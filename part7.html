@@ -30,6 +30,8 @@ var player2;
 var player3;
 var platforms;
 var cursors;
+var cursorEspacio;
+
 
 function create() {
 
@@ -87,10 +89,14 @@ function create() {
 
     player3.animations.add('left', [0, 1, 2, 3], 8, true);
     player3.animations.add('right', [4, 5, 6, 7], 8, true);
+    player3.animations.add('pegar', [30], 8, true);
+    player3.animations.add('agacharse', [40], 8, true);
 
     //  Our controls.
     cursors = game.input.keyboard.createCursorKeys();
 
+    //  Agregamos la tecla espacio para que sea cursor
+    cursorEspacio = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR)
 }
 
 function update() {
@@ -130,6 +136,18 @@ function update() {
         player3.body.velocity.y = -350;
     }
 
+
+    //  Si se presiona el espacio...
+    if (cursorEspacio.justPressed(1000)) {
+    	
+    	// Si se apreta el shift...
+    	if (cursorEspacio.shiftKey) {
+    		player3.animations.play("agacharse");
+    	} else {
+    		// Se activa la animación pegar
+    		player3.animations.play("pegar");	
+    	}
+    }
 }
 </script>
 
