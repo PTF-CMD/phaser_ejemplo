@@ -48,7 +48,6 @@
 		//  Lo escalamos para que ocupe el ancho del juego
 		ground.scale.setTo(3, 2);
 
-
 		//  Esto hace que la plataforma no se caiga cuando la choca el player
 		ground.body.immovable = true;
 
@@ -99,63 +98,75 @@
 	}
 
 	function update() {
-
+		// NO TOCAR
 		// Fisicas de choque de plataforma
-		game.physics.arcade.collide(enemigo, platforms);
+		game.physics.arcade.collide(player, platforms);
 		//  Reset de la velocidad del player
-		enemigo.body.velocity.x = 0;
-
+		player.body.velocity.x = 0;
 		// Si "flecha para izq"...
 		if (cursors.left.isDown) {
 			//  Moverse a la izq
-			enemigo.body.velocity.x = -100;
+			player.body.velocity.x = -100;
 			//  Animar con movimiento 'left'
-			enemigo.animations.play('left');
+			player.animations.play('left');
 		}
 		//  Si "flecha para der"...
 		else if (cursors.right.isDown) {
 			// Si ademas, shift...
 			if (cursors.right.shiftKey) {
 				// Animar con movimiento correr
-				enemigo.animations.play("correr");
-				enemigo.body.velocity.x = 250;
+				player.animations.play("correr");
+				player.body.velocity.x = 250;
 			} else {
-				if(!enemigo.body.touching.down) {
+				if(!player.body.touching.down) {
 					// Seteamos el salto con cursor derecha
-					enemigo.frame = 43;
-					enemigo.body.velocity.x = 100;
+					player.frame = 43;
+					player.body.velocity.x = 100;
 				} else {
 					// Animar con movimiento right
-					enemigo.animations.play('right');
-					enemigo.body.velocity.x = 100;
+					player.animations.play('right');
+					player.body.velocity.x = 100;
 				}
 			}
 		}
 		// Si "flecha para arriba"
 		else if (cursors.up.isDown) {
 			// Si esta tocando el piso
-			if (enemigo.body.touching.down) {
+			if (player.body.touching.down) {
 				// Salta
-				enemigo.animations.play("saltar");
-				enemigo.body.velocity.y = -300;
+				player.animations.play("saltar");
+				player.body.velocity.y = -300;
 			}
 		}
 		// Si presiono espaccio por 1 sec
 		else if (cursorEspacio.justPressed(1000)) {
 			// Si se apreta el shift...
 			if (cursorEspacio.shiftKey) {
-				enemigo.animations.play("agacharse");
+				player.animations.play("agacharse");
 			} else {
 				// Se activa la animación pegar
-				enemigo.animations.play("pegar");
+				player.animations.play("pegar");
 			}
-		}	else {
-			//  quedarse parado
-			enemigo.animations.stop();
-			// Cuando este parado mostrar el frame...
-			enemigo.frame = 64;
 		}
-	}
+		// Quedar quieto
+		else {
+			//  quedarse parado
+			player.animations.stop();
+			// Cuando este parado mostrar el frame...
+			player.frame = 64;
+		}
+		// NO TOCAR
+
+
+		// EMPIEZA ENEMIGO
+		// Fisicas de choque de plataforma
+		game.physics.arcade.collide(enemigo, platforms);
+		//  Reset de la velocidad del enemigo
+		enemigo.body.velocity.x = 0;
+		enemigo.frame = 71;
+
+		}
+
 	</script>
 
 	</body>
