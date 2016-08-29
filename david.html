@@ -1,0 +1,192 @@
+
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Phaser - Making your first game, part 7</title>
+        <script type="text/javascript" src="js/phaser.min.js"></script>
+        <style type="text/css">
+            body {
+                margin: 0;
+            }
+        </style>
+    </head>
+    <body>
+
+    <script type="text/javascript">
+
+    var game = new Phaser.Game(1000, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+    var player;
+    var enemigo;
+    var platforms;
+    var cursors;
+    var cursorEspacio;
+    var cursorX;
+
+    function preload() {
+        game.load.image('fondo', 'assets/fondo.jpg');
+        game.load.image('ground', 'assets/platform.png');
+        game.load.spritesheet('sprite1', 'assets/sprite1.png', 64, 64);
+        game.load.spritesheet('sprite2', 'assets/sprite2.png', 64, 64);
+    }
+
+    function create() {
+
+        //  Usamos las fisicas de ARCADE
+        game.physics.startSystem(Phaser.Physics.ARCADE);
+
+        //  Fondo del juego
+        game.add.sprite(0, 0, 'fondo');
+
+        //  Grupo de plataformas, inicialmente solo la base
+        platforms = game.add.group();
+
+        //  Fisicas para las plataformas
+        platforms.enableBody = true;
+
+        // Creamos el piso
+        var ground = platforms.create(0, game.world.height - 64, 'ground');
+
+        //  Lo escalamos para que ocupe el ancho del juego
+        ground.scale.setTo(3, 2);
+
+        //  Esto hace que la plataforma no se caiga cuando la choca el player
+        ground.body.immovable = true;
+
+        // El player y su config
+        player = game.add.sprite(100, game.world.height - 300, "sprite1" );
+
+        // El enemigo y su config
+        enemigo = game.add.sprite(game.world.width - 100, game.world.height - 300, "sprite2");
+
+        //  Lo escalamos para que ocupe el ancho del juego
+        player.scale.setTo(3, 3);
+
+        //  Lo escalamos para que ocupe el ancho del juego
+        enemigo.scale.setTo(3, 3);
+
+        //  Fisicas al player
+        game.physics.arcade.enable(player);
+        player.body.gravity.y = 300; // gravedad
+        player.body.collideWorldBounds = true; // chocar contra los otros objetos
+
+        //  Fisicas al enemigo
+        game.physics.arcade.enable(enemigo);
+        enemigo.body.gravity.y = 300; // gravedad
+        enemigo.body.collideWorldBounds = true; // chocar contra los otros objetos
+
+        // Animaciones del player
+        player.animations.add('left', [63,62,61,60,59,58,57,56], 8, true);
+        player.animations.add('right', [34, 35, 36, 37, 38, 39], 10, true);
+        player.animations.add('correr', [4, 5, 6, 7, 8, 9, 10, 11], 8, true);
+        player.animations.add('saltar', [40, 43], 8, false);
+        player.animations.add('pegar', [30,], 8, true);
+        player.animations.add('agacharse', [40], 8, true);
+        player.animations.add('golpe', [12,13,14,15,], 10, true);
+
+// Animaciones del enemigo
+        enemigo.animations.add('left', [38, 37, 32].reverse(), 8, true);
+        enemigo.animations.add('right', [34, 35, 36, 37, 38, 39].reverse(), 10, true);
+        enemigo.animations.add('correr', [4, 5, 6, 7, 8, 9, 10, 11].reverse(), 8, true);
+        enemigo.animations.add('saltar', [40, 43].reverse(), 8, false);
+        enemigo.animations.add('pegar', [29,30,29,24].reverse(), 8, true);
+        enemigo.animations.add('agacharse', [40], 8, true);
+
+        //  Controles
+        cursors = game.input.keyboard.createCursorKeys();
+
+        //  Control de la barra de espacio, pd: se puede reemplazar SPACEBAR por
+        //  otra key como por ej: Z...
+        cursorEspacio = game.input.keyboard.addKey(Phaser.Keyboard.Z);
+        cursorX = game.input.keyboard.addKey(Phaser.Keyboard.X);
+    }
+
+    function update() {
+        // NO TOCAR
+        // Fisicas de choque de plataforma
+        game.physics.arcade.collide(player, platforms);
+        //  Reset de la velocidad del player
+        player.body.velocity.x = 0;
+
+        // Si "flecha para izq"...
+        if (cursors.left.isDown) {
+            //  Moverse a la izq
+            if(!player.body.touching.down) {
+                    // Seteamos el salto con cursor derecha
+                    player.frame = 43;
+                    player.body.velocity.x = -100;
+            } else {
+                    // Animar con movimiento right
+
+                    player.body.velocity.x = -100;
+            }
+            //  Animar con movimiento 'left'
+            player.animations.play('left');
+        }
+
+        //  Si "flecha para der"...
+        else if (cursors.right.isDown) {
+            // Si ademas, shift...
+            if (cursors.right.shiftKey) {
+                // Animar con movimiento correr
+                player.animations.play("correr");
+                player.body.velocity.x = 250;
+            } else {
+                if(!player.body.touching.down) {
+                    // Seteamos el salto con cursor derecha
+                    player.frame = 47;
+                    player.body.velocity.x = 100;
+                } else {
+                    // Animar con movimiento right
+                    player.animations.play('right');
+                    player.body.velocity.x = 100;
+                }
+
+            }
+        }
+        // Si "flecha para arriba"
+        else if (cursors.up.isDown) {
+            // Si esta tocando el piso
+            if (player.body.touching.down) {
+                // Salta
+                player.animations.play("saltar");
+                player.body.velocity.y = -300;
+            }
+        }
+        else if (cursorX.isDown) {
+            // Si esta tocando el piso
+            if (player.body.touching.down) {
+                // Golpe
+                player.animations.play("golpe");
+            }
+        }
+        // Si presiono espaccio por 1 sec
+        else if (cursorEspacio.justPressed(1000)) {
+            // Si se apreta el shift...
+            if (cursorEspacio.shiftKey) {
+                player.animations.play("agacharse");
+            } else {
+                // Se activa la animación pegar
+                player.animations.play("pegar");
+            }
+
+        }
+
+        // Quedar quieto
+        else {
+            //  quedarse parado
+            player.animations.stop();
+            // Cuando este parado mostrar el frame...
+            player.frame = 64;
+        }
+        // NO TOCAR
+
+        // EMPIEZA ENEMIGO
+        // Fisicas de choque de plataforma
+        game.physics.arcade.collide(enemigo, platforms);
+        //  Reset de la velocidad del enemigo
+        enemigo.body.velocity.x = 0;
+        enemigo.frame = 71;
+        }
+    </script>
+    </body>
+</html>

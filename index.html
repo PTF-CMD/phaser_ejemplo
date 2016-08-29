@@ -19,7 +19,8 @@
 	var enemigo;
 	var platforms;
 	var cursors;
-	var cursorEspacio;
+	var cursorZ;
+	var cursorX;
 
 	function preload() {
 		game.load.image('fondo', 'assets/166597.jpg');
@@ -80,6 +81,7 @@
 		player.animations.add('saltar', [40, 43], 8, false);
 		player.animations.add('pegar', [29,30,29,24], 8, true);
 		player.animations.add('agacharse', [40], 8, true);
+		player.animations.add('golpe', [12,13,14,15], 14, true);
 
 		// Animaciones del enemigo
 		enemigo.animations.add('left', [38, 37, 32].reverse(), 8, true);
@@ -88,17 +90,19 @@
 		enemigo.animations.add('saltar', [40, 43].reverse(), 8, false);
 		enemigo.animations.add('pegar', [29,30,29,24].reverse(), 8, true);
 		enemigo.animations.add('agacharse', [40], 8, true);
+		enemigo.animations.add('morir', [19,18,17,16], 8, true);
+
 
 		//  Controles
 		cursors = game.input.keyboard.createCursorKeys();
 
 		//  Control de la barra de espacio, pd: se puede reemplazar SPACEBAR por
 		//  otra key como por ej: Z...
-		cursorEspacio = game.input.keyboard.addKey(Phaser.Keyboard.Z)
+		cursorZ = game.input.keyboard.addKey(Phaser.Keyboard.Z);
+		cursorX = game.input.keyboard.addKey(Phaser.Keyboard.X);
 	}
 
 	function update() {
-		// NO TOCAR
 		// Fisicas de choque de plataforma
 		game.physics.arcade.collide(player, platforms);
 		//  Reset de la velocidad del player
@@ -108,7 +112,8 @@
 			//  Moverse a la izq
 			player.body.velocity.x = -100;
 			//  Animar con movimiento 'left'
-			player.animations.play('left');
+			//player.animations.play('left');
+			player.animations.play('morir');
 		}
 		//  Si "flecha para der"...
 		else if (cursors.right.isDown) {
@@ -138,10 +143,18 @@
 				player.body.velocity.y = -300;
 			}
 		}
+		//Si toca X
+		else if (cursorX.isDown) {
+	            // Si esta tocando el piso
+	            if (player.body.touching.down) {
+	                // Golpe
+	                player.animations.play("golpe");
+	            }
+	        }
 		// Si presiono espaccio por 1 sec
-		else if (cursorEspacio.justPressed(1000)) {
+		else if (cursorZ.justPressed(1000)) {
 			// Si se apreta el shift...
-			if (cursorEspacio.shiftKey) {
+			if (cursorZ.shiftKey) {
 				player.animations.play("agacharse");
 			} else {
 				// Se activa la animación pegar
@@ -155,10 +168,8 @@
 			// Cuando este parado mostrar el frame...
 			player.frame = 64;
 		}
-		// NO TOCAR
 
 
-		// EMPIEZA ENEMIGO
 		// Fisicas de choque de plataforma
 		game.physics.arcade.collide(enemigo, platforms);
 		//  Reset de la velocidad del enemigo
