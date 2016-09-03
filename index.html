@@ -90,7 +90,7 @@
 		enemigo.animations.add('saltar', [40, 43].reverse(), 8, false);
 		enemigo.animations.add('pegar', [29,30,29,24].reverse(), 8, true);
 		enemigo.animations.add('agacharse', [40], 8, true);
-		enemigo.animations.add('morir', [19,18,17,16], 8, true);
+		enemigo.animations.add('morir', [19,18,17,16], 8, false);
 
 
 		//  Controles
@@ -145,12 +145,15 @@
 		}
 		//Si toca X
 		else if (cursorX.isDown) {
-	            // Si esta tocando el piso
-	            if (player.body.touching.down) {
-	                // Golpe
-	                player.animations.play("golpe");
-	            }
-	        }
+      // Si esta tocando el piso
+      if (player.body.touching.down) {
+          // Golpe
+          player.animations.play("golpe");
+					if (Math.abs(player.body.x - enemigo.body.x) < 100) {
+						enemigo.animations.play("morir");
+					}
+      }
+	  }
 		// Si presiono espaccio por 1 sec
 		else if (cursorZ.justPressed(1000)) {
 			// Si se apreta el shift...
@@ -159,14 +162,21 @@
 			} else {
 				// Se activa la animación pegar
 				player.animations.play("pegar");
+				if (Math.abs(player.body.x - enemigo.body.x) < 100) {
+					console.log("Bla");
+					enemigo.animations.play("morir");
+					player.animations.stop();
+				}
 			}
 		}
 		// Quedar quieto
 		else {
 			//  quedarse parado
 			player.animations.stop();
+			enemigo.animations.stop();
 			// Cuando este parado mostrar el frame...
 			player.frame = 64;
+			enemigo.frame = 71;
 		}
 
 
@@ -174,7 +184,7 @@
 		game.physics.arcade.collide(enemigo, platforms);
 		//  Reset de la velocidad del enemigo
 		enemigo.body.velocity.x = 0;
-		enemigo.frame = 71;
+
 
 		}
 
