@@ -18,6 +18,7 @@
       game.load.image('starSmall', 'assets/star.png');
       game.load.image('starBig', 'assets/star2.png');
       game.load.image('background', 'assets/background2.png');
+      game.load.image('logo' , 'assets/star.png')
 
     }
 
@@ -30,6 +31,9 @@
     var cursors;
     var jumpButton;
     var bg;
+    var logo;
+    var puntaje = 0;
+    var cant_estrellas;
 
     function create() {
 
@@ -49,7 +53,7 @@
       layer = map.createLayer('Tile Layer 1');
 
       //  Un-comment this on to see the collision tiles
-      layer.debug = true;
+      //layer.debug = true;
 
       layer.resizeWorld();
 
@@ -67,6 +71,17 @@
       player.animations.add('right', [13, 14, 15, 16, 17] , 10, true);
       player.animations.add('correr_der', [34, 35, 45, 46], 32, true);
 
+      logos = game.add.group();
+      logos.enableBody = true;
+      cant_estrellas = Math.floor((Math.random() * 30) + 10);
+      for (var i = 0; i < cant_estrellas; i++)
+      {
+          var logo = logos.create(i * 70, 0, 'logo');
+          logo.body.gravity.y = 300;
+          logo.body.bounce.y = 0.1 + Math.random() * 0.3;
+      }
+
+
       game.camera.follow(player);
 
       cursors = game.input.keyboard.createCursorKeys();
@@ -78,8 +93,15 @@
     function update() {
 
       game.physics.arcade.collide(player, layer);
+      game.physics.arcade.collide(logos, layer);
+      game.physics.arcade.overlap(player, logos, collectlogo, null, this);
 
       player.body.velocity.x = 0;
+
+      if (puntaje == cant_estrellas) {
+          window.location = 'nivel2.html'
+          console.log("AAAA");
+      }
 
       if (cursors.left.isDown) {
         player.body.setSize(32, 40, 5, 0);
@@ -143,9 +165,13 @@
     function render () {
 
       //game.debug.text(game.time.physicsElapsed, 32, 32);
-      game.debug.body(player);
+      //game.debug.body(player);
       //game.debug.bodyInfo(player, 16, 24);
 
+    }
+    function collectlogo (player, logo) {
+      puntaje++;
+      logo.kill();
     }
     </script>
   </body>

@@ -18,6 +18,7 @@
       game.load.image('starSmall', 'assets/star.png');
       game.load.image('starBig', 'assets/star2.png');
       game.load.image('background', 'assets/background2.png');
+      game.load.image('moneda', 'assets/star.png');
 
     }
 
@@ -32,6 +33,9 @@
     var bg;
     var cursorX;
     var volando;
+    var moneda;
+    var puntaje = 0;
+    var cant_monedas;
 
     function create() {
 
@@ -71,6 +75,16 @@
       player.animations.add('correr_der', [34, 35, 45, 46], 32, true);
       player.animations.add('salto_der', [117, 118, 119], 8, false);
 
+      monedas = game.add.group();
+      monedas.enableBody = true;
+      cant_monedas = Math.floor((Math.random() * 30));
+      console.log(cant_monedas);
+      for (var i = 0; i < cant_monedas; i++) {
+          var moneda = monedas.create(i * 70, 0, 'moneda');
+          moneda.body.gravity.y = 300;
+          moneda.body.bounce.y = 0.1 + Math.random() * 0.3;
+      }
+
       game.camera.follow(player);
 
       cursors = game.input.keyboard.createCursorKeys();
@@ -83,8 +97,14 @@
     function update() {
 
       game.physics.arcade.collide(player, layer);
+      game.physics.arcade.collide(monedas, layer);
+      game.physics.arcade.overlap(player, monedas, collectmoneda, null, this);
 
       player.body.velocity.x = 0;
+
+      if (puntaje == cant_monedas) {
+          window.location = 'index.html'
+      }
 
       if (cursors.left.isDown) {
         player.body.setSize(32, 40, 5, 0);
@@ -145,6 +165,11 @@
 
       if (player.body.onFloor()) {
         volando = false;
+        if (facing == "left" && !cursors.left.isDown) {
+          player.frame = 8;
+        } else if (facing == "right" && !cursors.right.isDown) {
+          player.frame = 9;
+        }
       }
 
       if (jumpButton.isDown && player.body.onFloor() && game.time.now > jumpTimer) {
@@ -164,6 +189,11 @@
           } else {
             player.frame = 119;
           }
+      }
+      function collectmoneda (player, moneda) {
+          puntaje++;
+          console.log(puntaje);
+          moneda.kill();
       }
 
     }
